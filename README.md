@@ -90,7 +90,9 @@ Human-readable documentation for the component, in GitHub-flavored Markdown.
 
 The rendered document should look visually appealing, using code syntax highlighting and so forth. It can make use of Markdown rich formatting features and can contain links to external resources.
 
-> Images can only be "embedded" by using fully qualified URLs (no relative) and hosting the images externally - as uploading of user Web resources during publishing of a component is not supported.
+> Images can only be "embedded" by using fully qualified URLs (not relative) and hosting the images externally - as uploading of user Web resources during publishing of a component will not be supported.
+
+
 
 ### component.json
 
@@ -121,7 +123,7 @@ A JSON (YAML) file with interface metadata
 
 > A component may be instantiated multiple times by a user within the same application. The API and deployment process needs to take this into consideration in order to avoid duplicate topics and failed procedure registrations.
 
-> Initial notes on the API description can be found in "api.json" in this directory.
+> Initial notes on the API description can be found in "api.md", a sample API definition in "api.json" in this directory.
 
 ### Makefile
 
