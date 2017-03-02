@@ -111,4 +111,12 @@ For the time being, with the CDC infrastructure not in place, the instructions n
 
 ### API Full Reference
 
-All the information for the full API reference is contained in the interface definition files for the component. Ideally, to avoid duplication of information, the reference section would be generated from these files. Wishlist: Allow interspersing blocks of additional information with the generated content, e.g. to give a hint to avoid a common error.
+All the information for the full API reference is contained in the interface definition files for the component.
+
+Ideally, to avoid duplication of information, the reference section would be generated from these files.
+
+> Wishlist: Allow interspersing blocks of additional information with the generated content, e.g. to give a hint to avoid a common error.
+
+An example for an entry in the full API reference is:
+
+- write me -

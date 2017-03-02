@@ -1,279 +1,133 @@
-# Notes on the contents of `interface.json`
+# Component API notes
 
 The `interface.json` file contains information about an interface that a component implements.
 
+With different component functionality, component APIs will differe widely regarding what they expose on a component and what events they provide.
+
 A component may implement several interfaces, e.g. a standard component management interface, a generic interface for sensors and a specific temperature sensor interface, which are described in separate interface files.
 
-The following is a collection for what this information could be for particular interfaces, in the form of interface description JSON objects, to get a feel for what is required and what else makes sense in this context.
+## Base URL
+
+Each component needs to be individually addressable. A user may start multiple instances of a component within an application, and more than one instance may run on the same machine.
+
+The base URL for all calls to the component, and for any events it emits, needs to include a unique identifier. This cannot be identifying information from the device the component is running on (such as a device serial number, MAC address), but needs to be specific to the component.
+
+The identifier will most usually be assigned during the component instantiation, and then passed into the component (e.g. as an environment variable). Absent such assignment, it could be created within the component (random id with sufficient entropy to assure uniqueness).
+
+A base URL for a component could be
+
+    io.crossbar.components.<id>.<component_name>
 
 
-## Component Management Interface
+## Custom URLs
 
-An interface shared across components which permits common actions. (At this moment: limited to customizing the URLs used by the component).
+Within an application, an API with semantic naming based on the structure of the application helps clarity and reduces errors. Users will not want to break from this when using components.
 
-```json
-{
-   "$schema": "http://com.crossbario/schemas/interface",
+Custom URLs are a necessary option to allow users to seamlessly integrate components into their applications.
 
-   "title": "Shared Component Management Interface",
-   "description": "Perform generic component management actions such as setting custom URLs.",
+There are two levels for this:
 
-   "tags": ["management", "URLs", "configuration"],
-   "version": "0.1",
-   "license": ["CC BY-ND 4.0", "attribution", "no-derivatives", "commercial"],
+* customizing the base URL
+* customizing individual action URLs
 
-   "homepage": "https://github.com/crossbario/crossbar-examples/tree/master/iotcookbook/device/pi/tempmon#interface",
+### Custom Base URL
 
-   "API": [
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.set_base_url",
-          "type": "procedure",
-          "title": "Set Base URL for Component API",
-          "description": "Set a new base URL which is then used as part of all component API URLs",
-          "parameters": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                        "id": "base_url",
-                        "description": "The new base URL to use",
-                        "type": "string",
-                        "format": "URL"
-                     }
-                  ],
-                  "required": ["base_url"]
-             }
-          },
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "boolean",
-                          "title": "Success",
-                          "description": "Successfully changed the base URL"
-                     }
-                  ]
-             }
-          },
-          "events": [
-             "io.crossbar.components.<id>.on_base_url_set"
-          ],
-          "errors": [
-             "io.crossbar.components.<id>.not_a_url"             
-          ]
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.on_base_url_set",
-          "type": "topic",
-          "title": "Set Base URL for Component API Set",
-          "description": "A new base URL which is then used as part of all component API URLs has been set",
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "string",
-                          "title": "New Base URL",
-                          "description": "The new base URL.",
-                          "format": "URL"
-                     }
-                  ]
-             }
-          }
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.set_action_url",
-          "type": "procedure",
-          "title": "Set Action URL for Component API Action",
-          "description": "Set a new URL for a specified action (procedure or topic)",
-          "parameters": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                        "id": "current_url",
-                        "description": "The current action URL to change",
-                        "type": "string",
-                        "format": "URL"
-                     },
-                     {
-                        "id": "new_url",
-                        "description": "The action URL to use going forward",
-                        "type": "string",
-                        "format": "URL"
-                     }
-                  ],
-                  "required": ["current_url", "new_url"]
-             }
-          },
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "string",
-                          "title": "Updated URL",
-                          "description": "The full URL used for the action going forward (including the current base URL part)",
-                          "format": "URL"
-                     }
-                  ]
-             }
-          },
-          "events": [
-             "io.crossbar.components.<id>.on_action_url_set"
-          ],
-          "errors": [
-             "io.crossbar.components.<id>.not_a_url"             
-          ]
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.on_base_url_set",
-          "type": "topic",
-          "title": "Set Base URL for Component API Set",
-          "description": "A new base URL which is then used as part of all component API URLs has been set",
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "string",
-                          "title": "New Base URL",
-                          "description": "The new base URL.",
-                          "format": "URL"
-                     }
-                  ]
-             }
-          }
-      }
-   ]
-}
-```
+A custom base URL applies across all API URLs, e.g. for a temperature monitor component, the standard URLs for temperature publication events and for temperature alarms
+
+    io.crossbar.components.component_34787829.tempmon.on_temperature
+    io.crossbar.components.component_34787829.tempmon.on_threshold_exceeded
+
+with a base URL of
+
+   io.crossbar.components.component_34787829.tempmon
+
+after a setting of a new base URL
+
+    com.buildingmanagement.building_01.floor_11.temp_sensor_23
+
+would become
+
+    com.buildingmanagement.building_01.floor_11.temp_sensor_23.on_temperature
+    com.buildingmanagement.building_01.floor_11.temp_sensor_23.on_threshold_exceeded
+
+This allows a quick adaptation of the component to the namespace used in the applciation.
+
+The changing of the base URL may occur via two mechanisms:
+
+* information passed in during instantiation of the component
+* via a component management API call
+
+The component management API call could be in the form of a call
+
+    <baseURL>.set_base_url
+
+where the argument is a new base URL as a string.
+
+### Custom Action URLs
+
+In some cases the semantics of the component actions (procedures and events) may differ from those used in an application. In this case it would be advantageous to be able to configure not just the base URL, but the action part as well.
+
+In the above example for a temperature sensor, "on_temperature" could e.g. be renamed to "present_temperature".
+
+The component management API call to configure this could be in the form
+
+    <baseURL>.set_action_url
+
+with the current part of the respective URL (excluding the base URL part) and the new part of the URL as arguments (both strings).
+
+### Questions
+
+* Should it also be possible to configure completely freeform URLs for actions, without a shared base URL?
+
+
+## Particular Component APIs
+
+### Pi Temperature Monitor
+
+#### Calls
+
+- `<baseURL>.tempmon.toggle_publish`- start/stop publishing the periodic temperature readings
+- `<baseURL>.tempmon.set_threshold` - threshold temp as int - alarm is published when this is exceeded
+
+#### Events
+
+- `<baseURL>.tempmon.on_temperature` - periodic publishing of current temperature reading
+- `<baseURL>.tempmon.on_threshold_exceeded` - alarm when the configured threshold is exceeded
+
+
+### Pi Sample Player
+
+#### Calls
+
+- `<baseURL>.sample_player.trigger_sample` - name of sample as argument
+- `<baseURL>.sample_player.stop_sample` - name of sample as argument
+- `<baseURL>.sample_player.add_sample`- URL to download sample file from, name to be assigned to it
+
+#### Events
+
+- none
+
+
+## JSON API definitions
+
+There are API definitions in
+
+* api_componentmanagement.json - the possible shared parts of the API
+* api_tempmon.json - the specific temperature monitor functionality API
+* api_sampleplayer.json - the specific sample player functionality API
+
 
 ## Questions
+
+### General
 
 * Are there any interface licenses?
    * As far as I can tell none of the OSS licenses cover this satisfactorily.
    * A CC license may work, since this is for copyright generally, and tries to be broad in its terms.
+
+### Component Management API
+
 * Should we announce the fact that the base URL has changed?
 * Does the "format" attribute in addition to the "type" attribute make sense? For the above, it would actually need to be more specific:
    * The **baseURL** is a full URL - but with the <id> part in it, which the checker needs to accept
    * The **action URL part** is just a part of the URL, so checking here should be that this + the current base URL is a full URL
-
-## Temperature Monitor Interface
-
-```json
-{
-   "$schema": "http://com.crossbario/schemas/interface",
-
-   "title": "Temperature Monitor Interface",
-   "description": "Receive current temperature and an alarm when a configurable threshhold is exceeded",
-
-   "tags": ["temperature", "monitoring"],
-   "version": "0.1",
-   "license": ["CC BY-ND 4.0", "attribution", "no-derivatives", "commercial"],
-
-   "homepage": "https://github.com/crossbario/crossbar-examples/tree/master/iotcookbook/device/pi/tempmon#interface",
-
-   "API": [
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.toggle_publish",
-          "type": "procedure",
-          "title": "Start/Stop the publication of current temperature values",
-          "description": "Calling this either starts or stops the publication of the current temperature value",
-          "parameters": {},
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "string",
-                          "values": ["running", "stopped"],
-                          "title": "Publication state",
-                          "description": "Returns 'running' if the call started the publication, 'stopped' if it stopped is"
-                     }
-                  ],
-                  "required": ["current_url", "new_url"]
-             }
-          },
-          "events": [],
-          "errors": []
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.on_temperature",
-          "type": "topic",
-          "title": "Current Temperature",
-          "description": "Publication of the current temperature reading.",
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "type": "integer",
-                          "title": "Current Temperature Value",
-                          "description": "The current temperature value in degrees Celsius"
-                     }
-                  ]
-             }
-          }
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.set_threshold",
-          "type": "procedure",
-          "title": "Set threshold value for alarm",
-          "description": "Set the threshold value for the temperature alarm. Whenever this is exceeded, an alarm is published",
-          "parameters": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                        "id": "threshold_temperature",
-                        "description": "The threshold temperature value in degrees Celsius",
-                        "type": "integer"
-                     }
-                  ],
-                  "required": ["threshold_temperature"]
-             }
-          },
-          "result": {},
-          "events": [],
-          "errors": []
-      },
-      {
-          "$schema": "http://wamp-proto.org/schema#",
-          "uri": "io.crossbar.components.<id>.on_threshold_exceeded",
-          "type": "topic",
-          "title": "threshold exceeded",
-          "description": "The configured temperature threshold has been exceeded.",
-          "result": {
-             "args": {
-                  "type": "array",
-                  "items": [
-                     {
-                          "id": "threshold",
-                          "type": "integer",
-                          "title": "Threshold Temperature",
-                          "description": "The currently configured threshold temperature"
-                     },
-                     {
-                          "id": "temperature",
-                          "type": "integer",
-                          "title": "Current Temperature",
-                          "description": "The currently measured temperature"
-                     }
-                  ]
-             }
-          }
-      }
-   ]
-}
-```
-
-## Sample Player Interface

@@ -1,0 +1,87 @@
+{
+   "$schema": "http://com.crossbario/schemas/interface",
+
+   "title": "Sample Player Interface",
+   "description": "Trigger sample playback on a Raspberry Pi. Upload new samples from URLs.",
+
+   "tags": ["audio", "samples", "output"],
+   "version": "0.1",
+   "license": ["CC BY-ND 4.0", "attribution", "no-derivatives", "commercial"],
+
+   "homepage": "https://github.com/crossbario/crossbar-examples/tree/master/iotcookbook/device/pi/sampleplayer#interface",
+
+   "API": [
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.trigger_sample",
+          "type": "procedure",
+          "title": "Trigger Sample playback",
+          "description": "Starts playback of a locally stored sample identified by a sample name. /n Sample need to be located in the samples directory, and the name given in this call is taken as the file name (sans the file-type-part). Files have to be in .WAV format, with a corresponding file type suffix.",
+          "parameters": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                        "id": "sample_name",
+                        "description": "The name of the sample (= filename in the 'samples' directory without the file type suffix).",
+                        "type": "string"
+                     }
+                  ],
+                  "required": ["sample_name"]
+             }
+          },
+          "result": {},
+          "events": [
+             "io.crossbar.components.<id>.sample_triggered",
+             "io.crossbar.components.<id>.sample_played"
+          ],
+          "errors": [
+             "io.crossbar.components.<id>.unknown_sample",
+             "io.crossbar.components.<id>.bad_sample_format",
+          ]
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.sample_triggered",
+          "type": "topic",
+          "title": "Playback of sample triggered",
+          "description": "The playback of a sample has been triggered.",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "title": "Sample Name",
+                          "description": "The name of the sample being played."
+                     }
+                  ]
+             }
+          }
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.sample_played",
+          "type": "topic",
+          "title": "Playback of sample ended",
+          "description": "The playback of a sample has ended because the sample has been played in its entirety.",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "title": "Sample Name",
+                          "description": "The name of the sample that was played."
+                     }
+                  ]
+             }
+          }
+      }
+
+
+   ]
+
+
+
+}

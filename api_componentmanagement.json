@@ -1,0 +1,140 @@
+{
+   "$schema": "http://com.crossbario/schemas/interface",
+
+   "title": "Shared Component Management Interface",
+   "description": "Perform generic component management actions such as setting custom URLs.",
+
+   "tags": ["management", "URLs", "configuration"],
+   "version": "0.1",
+   "license": ["CC BY-ND 4.0", "attribution", "no-derivatives", "commercial"],
+
+   "homepage": "https://github.com/crossbario/crossbar-examples/tree/master/iotcookbook/device/pi/tempmon#interface",
+
+   "API": [
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.set_base_url",
+          "type": "procedure",
+          "title": "Set Base URL for Component API",
+          "description": "Set a new base URL which is then used as part of all component API URLs",
+          "parameters": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                        "id": "base_url",
+                        "description": "The new base URL to use",
+                        "type": "string",
+                        "format": "URL"
+                     }
+                  ],
+                  "required": ["base_url"]
+             }
+          },
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "boolean",
+                          "title": "Success",
+                          "description": "Successfully changed the base URL"
+                     }
+                  ]
+             }
+          },
+          "events": [
+             "io.crossbar.components.<id>.on_base_url_set"
+          ],
+          "errors": [
+             "io.crossbar.components.<id>.not_a_url"
+          ]
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.on_base_url_set",
+          "type": "topic",
+          "title": "Set Base URL for Component API Set",
+          "description": "A new base URL which is then used as part of all component API URLs has been set",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "title": "New Base URL",
+                          "description": "The new base URL.",
+                          "format": "URL"
+                     }
+                  ]
+             }
+          }
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.set_action_url",
+          "type": "procedure",
+          "title": "Set Action URL for Component API Action",
+          "description": "Set a new URL for a specified action (procedure or topic)",
+          "parameters": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                        "id": "current_url",
+                        "description": "The current action URL to change",
+                        "type": "string",
+                        "format": "URL"
+                     },
+                     {
+                        "id": "new_url",
+                        "description": "The action URL to use going forward",
+                        "type": "string",
+                        "format": "URL"
+                     }
+                  ],
+                  "required": ["current_url", "new_url"]
+             }
+          },
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "title": "Updated URL",
+                          "description": "The full URL used for the action going forward (including the current base URL part)",
+                          "format": "URL"
+                     }
+                  ]
+             }
+          },
+          "events": [
+             "io.crossbar.components.<id>.on_action_url_set"
+          ],
+          "errors": [
+             "io.crossbar.components.<id>.not_a_url"
+          ]
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.on_base_url_set",
+          "type": "topic",
+          "title": "Set Base URL for Component API Set",
+          "description": "A new base URL which is then used as part of all component API URLs has been set",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "title": "New Base URL",
+                          "description": "The new base URL.",
+                          "format": "URL"
+                     }
+                  ]
+             }
+          }
+      }
+   ]
+}

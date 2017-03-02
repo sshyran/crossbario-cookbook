@@ -1,0 +1,107 @@
+{
+   "$schema": "http://com.crossbario/schemas/interface",
+
+   "title": "Temperature Monitor Interface",
+   "description": "Receive current temperature and an alarm when a configurable threshhold is exceeded",
+
+   "tags": ["temperature", "monitoring"],
+   "version": "0.1",
+   "license": ["CC BY-ND 4.0", "attribution", "no-derivatives", "commercial"],
+
+   "homepage": "https://github.com/crossbario/crossbar-examples/tree/master/iotcookbook/device/pi/tempmon#interface",
+
+   "API": [
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.toggle_publish",
+          "type": "procedure",
+          "title": "Start/Stop the publication of current temperature values",
+          "description": "Calling this either starts or stops the publication of the current temperature value",
+          "parameters": {},
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "string",
+                          "values": ["running", "stopped"],
+                          "title": "Publication state",
+                          "description": "Returns 'running' if the call started the publication, 'stopped' if it stopped is"
+                     }
+                  ],
+                  "required": ["current_url", "new_url"]
+             }
+          },
+          "events": [],
+          "errors": []
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.on_temperature",
+          "type": "topic",
+          "title": "Current Temperature",
+          "description": "Publication of the current temperature reading.",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "type": "integer",
+                          "title": "Current Temperature Value",
+                          "description": "The current temperature value in degrees Celsius"
+                     }
+                  ]
+             }
+          }
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.set_threshold",
+          "type": "procedure",
+          "title": "Set threshold value for alarm",
+          "description": "Set the threshold value for the temperature alarm. Whenever this is exceeded, an alarm is published",
+          "parameters": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                        "id": "threshold_temperature",
+                        "description": "The threshold temperature value in degrees Celsius",
+                        "type": "integer"
+                     }
+                  ],
+                  "required": ["threshold_temperature"]
+             }
+          },
+          "result": {},
+          "events": [],
+          "errors": []
+      },
+      {
+          "$schema": "http://wamp-proto.org/schema#",
+          "uri": "io.crossbar.components.<id>.on_threshold_exceeded",
+          "type": "topic",
+          "title": "threshold exceeded",
+          "description": "The configured temperature threshold has been exceeded.",
+          "result": {
+             "args": {
+                  "type": "array",
+                  "items": [
+                     {
+                          "id": "threshold",
+                          "type": "integer",
+                          "title": "Threshold Temperature",
+                          "description": "The currently configured threshold temperature"
+                     },
+                     {
+                          "id": "temperature",
+                          "type": "integer",
+                          "title": "Current Temperature",
+                          "description": "The currently measured temperature"
+                     }
+                  ]
+             }
+          }
+      }
+   ]
+}
