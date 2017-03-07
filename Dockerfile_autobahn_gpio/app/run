@@ -1,0 +1,7 @@
+#!/bin/sh
+
+pip install -r requirements.txt
+python -u turn_on_led.py
+#python -u publish_random_number.py
+#python -u DHT11.py
+

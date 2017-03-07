@@ -1,0 +1,68 @@
+FROM armhf/python:2.7-alpine
+
+MAINTAINER The Crossbar.io Project <support@crossbario.com>
+
+## -----------------------------------------------------------------
+## dieser Teil ist nun zum einsehen von /dev/mem
+##RUN apt-get update && apt-get install -y \
+##RUN apk add git-core build-essential \
+##    gcc \
+##    python \
+##    python-dev \
+##    python-pip \
+##    python-virtualenv \
+##    --no-install-recommends && \
+##    rm -rf /var/lib/apt/lists/*
+
+## RUN pip install pyserial
+## RUN git clone git://git.drogon.net/wiringPi
+## RUN cd wiringPi && ./build
+## RUN pip install wiringpi2
+RUN echo "ipv6" >> /etc/modules
+RUN apk update
+RUN apk search -v 'acf*'
+RUN apk add git-core
+RUN apk add wiringpi
+## ------------------------------------------------------------------
+
+ENV HOME /app
+ENV DEBIAN_FRONTEND noninteractive
+
+# Crossbar.io connection defaults
+ENV CBURL ws://104.199.76.81:8080/ws
+ENV CBREALM realm1
+
+# we need a toolchain for the (optional) binary extensions used by Autobahn
+RUN apk add --update build-base libffi-dev openssl-dev python-dev py-pip \
+    && rm -rf /var/cache/apk/*
+
+# RUN apt-get install git
+# install Autobahn|Python
+
+RUN pip install -U pip && pip install autobahn[twisted,asyncio,accelerate,serialization,encryption]
+RUN pip install pyserial
+RUN pip install adafruit_python_dht
+RUN pip install pyserial
+
+# ----------eher alt
+#RUN git clone git://git.drogon.net/wiringPi
+#RUN cd wiringPi && ./build
+#RUN pip install wiringpi2
+# ------------------------------
+
+# RUN pip install psutil
+# add example service
+COPY ./app /app
+# RUN ln -s /app/client_tx.py /app/client.py
+
+# make /app a volume to allow external configuration
+#VOLUME /sys
+VOLUME /app
+#VOLUME /dev/mem
+
+
+# set the app component directory as working directory
+WORKDIR /app
+
+# run service entry script by default
+CMD ["sh", "/app/run"]
