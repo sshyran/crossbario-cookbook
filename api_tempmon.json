@@ -28,8 +28,7 @@
                           "title": "Publication state",
                           "description": "Returns 'running' if the call started the publication, 'stopped' if it stopped is"
                      }
-                  ],
-                  "required": ["current_url", "new_url"]
+                  ]
              }
           },
           "events": [],
